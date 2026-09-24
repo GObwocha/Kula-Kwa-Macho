@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-playfair), Georgia, serif;
+
+  --color-brand-cream: #F8F5F0;
+  --color-brand-charcoal: #1A1A1A;
+  --color-brand-green: #2E5C3B;
+  --color-brand-red: #D33F33;
+  --color-brand-yellow: #F2C94C;
+  --color-brand-brown: #8D5C43;
+
+  --color-background: var(--color-brand-cream);
+  --color-foreground: var(--color-brand-charcoal);
+  --color-primary: var(--color-brand-red);
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: var(--color-brand-green);
+  --color-secondary-foreground: #FFFFFF;
+  --color-accent: var(--color-brand-yellow);
+  --color-accent-foreground: var(--color-brand-charcoal);
+  --color-muted: #E8E3DB;
+  --color-muted-foreground: #666666;
+  --color-card: #FFFFFF;
+  --color-card-foreground: var(--color-brand-charcoal);
+  --color-border: #E8E3DB;
+}
+
+@layer base {
+  :root {
+    --background: var(--color-brand-cream);
+    --foreground: var(--color-brand-charcoal);
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm active:scale-[0.98] transition-all;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm active:scale-[0.98] transition-all;
+  }
+
+  .btn-outline {
+    @apply border-2 border-border hover:bg-muted text-foreground active:scale-[0.98] transition-all;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-muted text-foreground;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
