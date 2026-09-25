@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Clock, Flame, Info, Heart } from "lucide-react";
 import Link from "next/link";
 import { AddToTrayForm } from "@/components/food/AddToTrayForm";
+import { FavoriteButton } from "@/components/food/FavoriteButton";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function FoodDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
@@ -11,6 +13,20 @@ export default async function FoodDetailPage({ params }: { params: Promise<{ slu
 
   if (!food) {
     notFound();
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let isFavorited = false;
+  if (user) {
+    const { data: fav } = await supabase
+      .from('favorites')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('food_id', food.id)
+      .single();
+    isFavorited = !!fav;
   }
 
   // Generate mock customizations if they don't exist in our type yet
@@ -65,9 +81,7 @@ export default async function FoodDetailPage({ params }: { params: Promise<{ slu
                   </div>
                   <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground">{food.name}</h1>
                 </div>
-                <button className="p-3 rounded-full border border-border hover:bg-muted hover:text-brand-red transition-colors" aria-label="Favorite">
-                  <Heart className="w-6 h-6" />
-                </button>
+                <FavoriteButton foodId={food.id} initialIsFavorited={isFavorited} isLoggedIn={!!user} />
               </div>
 
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTray } from "@/components/tray/TrayProvider";
 import { MapPin, User, Zap, AlertTriangle } from "lucide-react";
 
+import { submitFictionalOrder } from "./actions";
+
 export default function CheckoutPage() {
   const { items, subtotal, clearTray } = useTray();
   const router = useRouter();
@@ -22,16 +24,31 @@ export default function CheckoutPage() {
     return null;
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setIsSubmitting(true);
-    // Simulate API delay for order creation
+    
+    // Save to database
+    const payload = {
+      totalAmount: subtotal,
+      speed,
+      rider: personality,
+      items: items.map(item => ({
+        foodId: item.food.id,
+        quantity: item.quantity,
+        price: item.food.price,
+        customizations: item.customizations
+      }))
+    };
+
+    const result = await submitFictionalOrder(payload);
+
+    // Give it a tiny simulated delay for dopamine
     setTimeout(() => {
-      // Clear tray after fictional order
       clearTray();
-      // Redirect to a random fake order ID delivery page
-      const fakeOrderId = Math.random().toString(36).substring(2, 9).toUpperCase();
-      router.push(`/delivery/${fakeOrderId}?rider=${personality}`);
-    }, 1500);
+      // Use the real DB order ID if we have it, otherwise fallback
+      const orderIdToTrack = result?.success ? result.orderId : Math.random().toString(36).substring(2, 9).toUpperCase();
+      router.push(`/delivery/${orderIdToTrack}?rider=${personality}`);
+    }, 1000);
   };
 
   return (

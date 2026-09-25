@@ -1,9 +1,27 @@
+'use client'
+
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useActionState } from "react";
+import { login, signup } from "../actions";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  const [loginState, loginAction, isLoginPending] = useActionState(login, null);
+  const [signupState, signupAction, isSignupPending] = useActionState(signup, null);
+
+  const handleOAuth = async () => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      }
+    });
+  };
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-background px-4">
+    <div className="min-h-[80vh] flex items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md bg-card border border-border rounded-3xl p-8 shadow-sm">
         <div className="text-center mb-8">
           <h1 className="font-heading text-3xl font-bold mb-2">Welcome Back</h1>
@@ -11,7 +29,10 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-4">
-          <button className="w-full py-3 rounded-xl border border-border hover:bg-muted font-medium transition-colors flex items-center justify-center gap-3">
+          <button 
+            onClick={handleOAuth}
+            className="w-full py-3 rounded-xl border border-border hover:bg-muted font-medium transition-colors flex items-center justify-center gap-3"
+          >
             <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -27,18 +48,33 @@ export default function LoginPage() {
             <div className="flex-grow border-t border-border"></div>
           </div>
 
-          <form className="space-y-4" action="#">
+          <form className="space-y-4" action={loginAction}>
+            {loginState?.error && (
+              <div className="p-3 text-sm text-brand-red bg-brand-red/10 rounded-xl">
+                {loginState.error}
+              </div>
+            )}
+            {signupState?.error && (
+              <div className="p-3 text-sm text-brand-red bg-brand-red/10 rounded-xl">
+                {signupState.error}
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
-              <input type="email" placeholder="you@example.com" className="w-full p-3 bg-muted border border-border rounded-xl outline-none focus:border-primary" />
+              <input name="email" type="email" placeholder="you@example.com" required className="w-full p-3 bg-muted border border-border rounded-xl outline-none focus:border-primary" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Password</label>
-              <input type="password" placeholder="••••••••" className="w-full p-3 bg-muted border border-border rounded-xl outline-none focus:border-primary" />
+              <input name="password" type="password" placeholder="••••••••" required className="w-full p-3 bg-muted border border-border rounded-xl outline-none focus:border-primary" />
             </div>
-            <button type="button" className="btn btn-primary w-full py-3">
-              Sign In
-            </button>
+            <div className="flex gap-4">
+              <button type="submit" disabled={isLoginPending} className="btn btn-primary flex-1 py-3">
+                {isLoginPending ? "Signing in..." : "Sign In"}
+              </button>
+              <button formAction={signupAction} disabled={isSignupPending} className="btn btn-outline flex-1 py-3">
+                {isSignupPending ? "Creating..." : "Sign Up"}
+              </button>
+            </div>
           </form>
         </div>
 
